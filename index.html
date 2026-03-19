@@ -1,0 +1,2099 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<script>
+// Fallback пока модуль не загрузился
+window.showPage = function(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  var el = document.getElementById(id);
+  if (el) el.classList.add('active');
+};
+window.switchTab = window.switchTab || function(){};
+window.mnavActive = window.mnavActive || function(){};
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Тишина — медитации</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<!-- ═══════════════════════════════════════════════════════
+     ⚙️  FIREBASE CONFIG — вставь свои ключи сюда
+     Получить: console.firebase.google.com → Project settings → Web app
+     ═══════════════════════════════════════════════════════ -->
+<script>
+window.FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyBZjTls8MHCXeH5-UgyVEVzamUuk9k8kns",
+  authDomain:        "project-1711600237860275818.firebaseapp.com",
+  projectId:         "project-1711600237860275818",
+  storageBucket:     "project-1711600237860275818.firebasestorage.app",
+  messagingSenderId: "849824579531",
+  appId:             "1:849824579531:web:7782437bd3c6ce90bec04e"
+};
+
+// ─── Настройки подписки (меняй в Админ-панели или здесь) ──
+window.APP_CONFIG = {
+  adminEmail:    "merizzo.yt@gmail.com",   // email администратора
+  paymentUrl:    "https://your-payment-link.com",  // ссылка на оплату
+  price:         "299",
+  currency:      "₽",
+  period:        "месяц",
+};
+</script>
+
+<style>
+:root {
+  --bg:      #07090d;
+  --s1:      #0d1117;
+  --s2:      #131920;
+  --s3:      #1c2430;
+  --s4:      #252f3d;
+  --mist:    #6e8fa0;
+  --pale:    #c0d4df;
+  --text:    #98b4c2;
+  --acc:     #4ea882;
+  --acc2:    #3a8065;
+  --gold:    #c9a84c;
+  --dim:     #3d5260;
+  --danger:  #c0504a;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'DM Sans',sans-serif;font-weight:300;
+  background:var(--bg);color:var(--pale);
+  min-height:100vh;overflow-x:hidden;
+}
+input,button,select,textarea{font-family:inherit}
+button{cursor:pointer;border:none;background:none}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:var(--s1)}
+::-webkit-scrollbar-thumb{background:var(--s3);border-radius:2px}
+
+/* ── Typography ── */
+.serif{font-family:'Cormorant Garamond',serif;font-weight:300}
+.label{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+
+/* ── Noise overlay ── */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
+  opacity:.5;
+}
+
+/* ════════════════════════════════════
+   PAGES
+   ════════════════════════════════════ */
+.page{display:none;min-height:100vh;animation:fadeIn .4s ease}
+.page.active{display:flex;flex-direction:column}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ════════════════════════════════════
+   AUTH PAGES
+   ════════════════════════════════════ */
+.auth-wrap{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+.auth-orb{
+  position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none;
+}
+.auth-orb.a{width:500px;height:500px;background:radial-gradient(circle,rgba(78,168,130,.12),transparent 70%);top:-100px;left:-100px}
+.auth-orb.b{width:400px;height:400px;background:radial-gradient(circle,rgba(60,100,160,.08),transparent 70%);bottom:-80px;right:-80px}
+
+.auth-card{
+  background:var(--s1);border:1px solid var(--s3);
+  padding:52px 48px;width:100%;max-width:440px;
+  position:relative;z-index:1;
+}
+.auth-logo{
+  font-family:'Cormorant Garamond',serif;font-weight:300;font-size:2rem;
+  color:var(--pale);letter-spacing:.05em;margin-bottom:8px;
+}
+.auth-logo span{color:var(--acc);font-style:italic}
+.auth-sub{font-size:.85rem;color:var(--mist);margin-bottom:40px}
+.auth-title{font-size:1.4rem;font-weight:400;color:var(--pale);margin-bottom:6px}
+
+.field{margin-bottom:20px}
+.field label{display:block;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
+.field input{
+  width:100%;background:var(--s2);border:1px solid var(--s3);color:var(--pale);
+  padding:12px 16px;font-size:.9rem;outline:none;transition:border-color .2s;
+}
+.field input:focus{border-color:var(--acc)}
+.field input::placeholder{color:var(--dim)}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:13px 28px;font-size:.82rem;letter-spacing:.1em;
+  transition:all .2s;text-decoration:none;
+}
+.btn-primary{background:var(--acc);color:var(--bg)}
+.btn-primary:hover{background:var(--acc2);transform:translateY(-1px)}
+.btn-ghost{border:1px solid var(--s4);color:var(--mist)}
+.btn-ghost:hover{border-color:var(--acc);color:var(--acc)}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-gold{background:var(--gold);color:var(--bg)}
+.btn-gold:hover{opacity:.9;transform:translateY(-1px)}
+.btn-full{width:100%}
+.btn-sm{padding:8px 18px;font-size:.75rem}
+
+.auth-switch{
+  margin-top:24px;text-align:center;font-size:.82rem;color:var(--mist);
+}
+.auth-switch a{color:var(--acc);cursor:pointer;text-decoration:none}
+.auth-switch a:hover{text-decoration:underline}
+
+.err-msg{
+  background:rgba(192,80,74,.12);border:1px solid rgba(192,80,74,.3);
+  color:#e07070;padding:10px 14px;font-size:.82rem;margin-bottom:16px;
+  display:none;
+}
+.err-msg.show{display:block}
+
+/* ════════════════════════════════════
+   APP LAYOUT
+   ════════════════════════════════════ */
+.app-layout{display:flex;min-height:100vh}
+
+/* ── Sidebar ── */
+.sidebar{
+  width:240px;min-width:240px;background:var(--s1);
+  border-right:1px solid var(--s3);
+  display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+.sidebar-logo{
+  padding:28px 24px 20px;
+  font-family:'Cormorant Garamond',serif;font-weight:300;font-size:1.6rem;
+  color:var(--pale);letter-spacing:.05em;border-bottom:1px solid var(--s3);
+}
+.sidebar-logo span{color:var(--acc);font-style:italic}
+
+.sidebar-nav{padding:16px 0;flex:1}
+.nav-item{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 24px;color:var(--mist);font-size:.85rem;
+  cursor:pointer;transition:all .15s;position:relative;
+}
+.nav-item:hover{color:var(--pale);background:rgba(255,255,255,.03)}
+.nav-item.active{color:var(--acc)}
+.nav-item.active::before{
+  content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:2px;height:60%;background:var(--acc);
+}
+.nav-icon{font-size:1rem;width:20px;text-align:center}
+.nav-badge{
+  margin-left:auto;background:var(--gold);color:var(--bg);
+  font-size:.55rem;padding:2px 6px;letter-spacing:.05em;
+}
+
+.sidebar-bottom{padding:16px 24px 24px;border-top:1px solid var(--s3)}
+.user-chip{
+  display:flex;align-items:center;gap:10px;
+  padding:10px;background:var(--s2);margin-bottom:12px;
+}
+.user-avatar{
+  width:32px;height:32px;border-radius:50%;background:var(--acc);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.75rem;font-weight:500;color:var(--bg);flex-shrink:0;
+}
+.user-name{font-size:.8rem;color:var(--pale);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{font-size:.65rem;color:var(--dim);letter-spacing:.08em}
+
+/* ── Main content ── */
+.main-content{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.main-scroll{flex:1;overflow-y:auto;padding:40px 48px 120px}
+
+/* ─ Page header ─ */
+.page-hdr{margin-bottom:40px}
+.page-hdr h1{
+  font-family:'Cormorant Garamond',serif;font-weight:300;font-size:2.8rem;
+  color:var(--pale);line-height:1.1;margin-bottom:6px;
+}
+.page-hdr p{font-size:.9rem;color:var(--mist)}
+
+/* ════════════════════════════════════
+   MEDITATION CARDS
+   ════════════════════════════════════ */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:2px}
+.grid-3{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+
+.med-card{
+  background:var(--s1);padding:28px;
+  position:relative;cursor:pointer;
+  transition:all .3s cubic-bezier(.16,1,.3,1);
+  border:1px solid transparent;
+}
+.med-card:hover{background:var(--s2);border-color:var(--s3);transform:translateY(-2px)}
+.med-card.premium-locked{opacity:.7}
+
+.med-cover{
+  width:100%;height:140px;background:var(--s2);
+  margin-bottom:20px;position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  font-size:2.5rem;
+}
+.med-cover.has-img img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.med-cover-gradient{
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(78,168,130,.15),rgba(60,100,160,.08));
+}
+
+.med-access{
+  position:absolute;top:12px;right:12px;
+  font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;
+  padding:4px 10px;
+}
+.access-free{background:rgba(78,168,130,.15);color:var(--acc);border:1px solid rgba(78,168,130,.3)}
+.access-premium{background:rgba(201,168,76,.12);color:var(--gold);border:1px solid rgba(201,168,76,.3)}
+
+.lock-overlay{
+  position:absolute;inset:0;background:rgba(7,9,13,.6);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  opacity:0;transition:opacity .2s;
+}
+.med-card.premium-locked:hover .lock-overlay{opacity:1}
+.lock-overlay span{font-size:.7rem;color:var(--gold);letter-spacing:.1em}
+
+.med-dur{font-size:.65rem;letter-spacing:.15em;color:var(--dim);margin-bottom:8px;text-transform:uppercase}
+.med-title{font-family:'Cormorant Garamond',serif;font-size:1.35rem;color:var(--pale);margin-bottom:8px;line-height:1.2}
+.med-desc{font-size:.8rem;color:var(--mist);line-height:1.6;margin-bottom:16px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.med-meta{display:flex;align-items:center;gap:12px}
+.med-cat{font-size:.65rem;color:var(--dim);letter-spacing:.1em}
+.med-plays{font-size:.65rem;color:var(--dim)}
+
+.fav-btn{
+  position:absolute;bottom:20px;right:20px;
+  background:none;border:none;color:var(--dim);font-size:1.1rem;
+  transition:color .2s;line-height:1;padding:4px;
+}
+.fav-btn:hover,.fav-btn.active{color:#e07070}
+
+/* ════════════════════════════════════
+   AUDIO PLAYER (sticky bottom)
+   ════════════════════════════════════ */
+.player-bar{
+  position:fixed;bottom:0;left:240px;right:0;
+  background:var(--s1);border-top:1px solid var(--s3);
+  padding:0 32px;height:80px;
+  display:none;align-items:center;gap:32px;z-index:200;
+}
+.player-bar.visible{display:flex}
+
+.player-info{min-width:200px}
+.player-track{font-size:.88rem;color:var(--pale);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+.player-cat{font-size:.65rem;color:var(--dim);letter-spacing:.1em}
+
+.player-controls{display:flex;align-items:center;gap:16px;flex:1;justify-content:center;position:relative;z-index:1}
+.ctrl{color:var(--mist);font-size:1.1rem;transition:color .2s;background:none;border:none;padding:6px;-webkit-tap-highlight-color:transparent}
+.ctrl:hover{color:var(--pale)}
+.ctrl-play{
+  width:44px;height:44px;border-radius:50%;
+  border:1px solid var(--acc);color:var(--acc);
+  display:flex;align-items:center;justify-content:center;font-size:1rem;
+  transition:all .2s;background:none;
+  -webkit-tap-highlight-color:transparent;
+  /* Larger touch area on iOS */
+  touch-action:manipulation;
+}
+.ctrl-play:hover{background:var(--acc);color:var(--bg)}
+
+.player-progress{flex:1;display:flex;align-items:center;gap:10px;max-width:400px}
+.prog-time{font-size:.7rem;color:var(--dim);letter-spacing:.05em;white-space:nowrap}
+.prog-bar{flex:1;height:2px;background:var(--s3);position:relative;cursor:pointer}
+.prog-fill{height:100%;background:var(--acc);position:relative;transition:width .1s linear}
+.prog-fill::after{
+  content:'';position:absolute;right:-4px;top:50%;transform:translateY(-50%);
+  width:8px;height:8px;border-radius:50%;background:var(--acc);
+}
+input[type=range].prog-input{
+  position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;
+}
+
+.player-vol{display:flex;align-items:center;gap:8px;min-width:120px}
+.vol-icon{font-size:.9rem;color:var(--dim)}
+input[type=range].vol-range{
+  width:80px;height:2px;background:var(--s3);outline:none;cursor:pointer;
+  -webkit-appearance:none;appearance:none;
+}
+input[type=range].vol-range::-webkit-slider-thumb{
+  -webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:var(--mist);
+}
+
+/* ════════════════════════════════════
+   PREMIUM UPSELL
+   ════════════════════════════════════ */
+.premium-modal{
+  position:fixed;inset:0;background:rgba(7,9,13,.85);
+  display:none;align-items:center;justify-content:center;z-index:200;
+  animation:fadeIn .3s ease;
+}
+.premium-modal.show{display:flex}
+.premium-card{
+  background:var(--s1);border:1px solid var(--s3);
+  padding:52px 48px;max-width:480px;width:100%;
+  text-align:center;position:relative;
+}
+.premium-card .close{
+  position:absolute;top:16px;right:20px;color:var(--dim);font-size:1.2rem;
+  transition:color .2s;
+}
+.premium-card .close:hover{color:var(--pale)}
+.premium-icon{font-size:2.5rem;margin-bottom:20px}
+.premium-card h2{
+  font-family:'Cormorant Garamond',serif;font-weight:300;font-size:2.2rem;
+  color:var(--pale);margin-bottom:12px;
+}
+.premium-price{
+  font-family:'Cormorant Garamond',serif;font-size:3rem;color:var(--gold);
+  margin:24px 0;
+}
+.premium-price span{font-size:1rem;color:var(--mist);font-family:'DM Sans',sans-serif}
+.premium-features{list-style:none;margin-bottom:32px;text-align:left}
+.premium-features li{
+  padding:8px 0;border-bottom:1px solid var(--s3);
+  font-size:.85rem;color:var(--mist);display:flex;gap:10px;align-items:center;
+}
+.premium-features li::before{content:'✦';color:var(--acc);font-size:.6rem}
+
+/* ════════════════════════════════════
+   STATS / DASHBOARD WIDGETS
+   ════════════════════════════════════ */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:2px;margin-bottom:40px}
+.stat-card{background:var(--s1);padding:24px;border:1px solid var(--s3)}
+.stat-num{
+  font-family:'Cormorant Garamond',serif;font-size:2.8rem;
+  color:var(--pale);line-height:1;margin-bottom:4px;
+}
+.stat-label{font-size:.7rem;letter-spacing:.15em;color:var(--dim);text-transform:uppercase}
+
+/* ════════════════════════════════════
+   HISTORY
+   ════════════════════════════════════ */
+.history-list{display:flex;flex-direction:column;gap:2px}
+.history-item{
+  background:var(--s1);border:1px solid var(--s3);
+  padding:16px 20px;display:flex;align-items:center;gap:16px;
+  transition:border-color .2s;cursor:pointer;
+}
+.history-item:hover{border-color:var(--s4)}
+.history-thumb{
+  width:48px;height:48px;background:var(--s2);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:1.3rem;
+}
+.history-info{flex:1}
+.history-name{font-size:.9rem;color:var(--pale);margin-bottom:2px}
+.history-date{font-size:.7rem;color:var(--dim)}
+.history-dur{font-size:.75rem;color:var(--mist)}
+
+/* ════════════════════════════════════
+   ADMIN PANEL
+   ════════════════════════════════════ */
+.admin-tabs{display:flex;gap:0;border-bottom:1px solid var(--s3);margin-bottom:32px}
+.admin-tab{
+  padding:12px 24px;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;
+  transition:all .2s;margin-bottom:-1px;
+}
+.admin-tab.active{color:var(--acc);border-bottom-color:var(--acc)}
+.admin-tab-content{display:none}
+.admin-tab-content.active{display:block;animation:fadeIn .3s ease}
+
+.admin-form{max-width:600px}
+.admin-form .field{margin-bottom:24px}
+.admin-form textarea{
+  width:100%;background:var(--s2);border:1px solid var(--s3);color:var(--pale);
+  padding:12px 16px;font-size:.88rem;outline:none;transition:border-color .2s;
+  font-family:inherit;resize:vertical;min-height:100px;
+}
+.admin-form textarea:focus{border-color:var(--acc)}
+.admin-form select{
+  width:100%;background:var(--s2);border:1px solid var(--s3);color:var(--pale);
+  padding:12px 16px;font-size:.88rem;outline:none;cursor:pointer;
+  -webkit-appearance:none;
+}
+
+.med-table{width:100%;border-collapse:collapse}
+.med-table th{
+  text-align:left;padding:10px 16px;font-size:.65rem;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--dim);border-bottom:1px solid var(--s3);
+}
+.med-table td{
+  padding:14px 16px;border-bottom:1px solid var(--s2);
+  font-size:.85rem;color:var(--text);vertical-align:middle;
+}
+.med-table tr:hover td{background:rgba(255,255,255,.02)}
+.med-table .actions{display:flex;gap:8px}
+
+.upload-area{
+  border:1px dashed var(--s4);padding:32px;text-align:center;
+  cursor:pointer;transition:border-color .2s;
+}
+.upload-area:hover{border-color:var(--acc)}
+.upload-area input{display:none}
+.upload-icon{font-size:2rem;margin-bottom:8px}
+.upload-text{font-size:.82rem;color:var(--mist)}
+.upload-sub{font-size:.7rem;color:var(--dim);margin-top:4px}
+.upload-preview{font-size:.8rem;color:var(--acc);margin-top:8px}
+
+/* ════════════════════════════════════
+   TOAST
+   ════════════════════════════════════ */
+.toast-container{position:fixed;top:20px;right:20px;z-index:9000;display:flex;flex-direction:column;gap:8px}
+.toast{
+  background:var(--s2);border:1px solid var(--s3);
+  padding:12px 20px;font-size:.82rem;color:var(--pale);
+  animation:slideIn .3s ease;min-width:240px;
+  display:flex;align-items:center;gap:10px;
+}
+.toast.success{border-left:3px solid var(--acc)}
+.toast.error{border-left:3px solid var(--danger)}
+.toast.info{border-left:3px solid var(--gold)}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+
+/* ════════════════════════════════════
+   EMPTY STATE
+   ════════════════════════════════════ */
+.empty{text-align:center;padding:80px 20px;color:var(--dim)}
+.empty-icon{font-size:3rem;margin-bottom:16px;opacity:.4}
+.empty p{font-size:.9rem}
+
+/* ════════════════════════════════════
+   LOADING
+   ════════════════════════════════════ */
+.skeleton{
+  background:linear-gradient(90deg,var(--s2) 25%,var(--s3) 50%,var(--s2) 75%);
+  background-size:200% 100%;animation:shimmer 1.5s linear infinite;
+}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+
+.skel-card{height:260px;background:var(--s1)}
+.skel-card .skel-cover{height:140px;margin-bottom:16px}
+.skel-card .skel-line{height:12px;margin-bottom:8px;border-radius:2px}
+.skel-card .skel-line.short{width:60%}
+
+/* ════════════════════════════════════
+   RESPONSIVE
+   ════════════════════════════════════ */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main-scroll{padding:16px 16px 160px}
+  .main-content{width:100%}
+  .app-layout{flex-direction:column}
+  .page-hdr{margin-bottom:20px}
+  .page-hdr h1{font-size:1.8rem}
+  .page-hdr p{font-size:.82rem}
+  .grid{grid-template-columns:1fr!important}
+  .med-card{padding:20px}
+  .med-cover{height:120px}
+  .auth-card{padding:28px 20px;margin:16px}
+  .auth-logo{font-size:1.6rem}
+  .player-bar{
+    left:0;height:auto;
+    padding:10px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    flex-wrap:wrap;gap:8px;
+    z-index:200;
+  }
+  .player-info{width:100%;min-width:0}
+  .player-track{font-size:.82rem}
+  .player-controls{order:2}
+  .player-progress{order:3;width:100%;max-width:100%}
+  .player-vol{display:none}
+  .premium-card{padding:32px 20px;margin:16px}
+  .premium-price{font-size:2.5rem}
+  .stats-row{grid-template-columns:repeat(3,1fr)}
+  .stat-num{font-size:2rem}
+  .history-item{padding:12px 14px}
+}
+
+/* Мобильная нижняя навигация */
+.mobile-nav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--s1);border-top:1px solid var(--s3);
+  z-index:150;
+  padding-bottom:env(safe-area-inset-bottom,0);
+  transition:bottom .2s;
+  /* Ensure tap targets are not blocked */
+  -webkit-tap-highlight-color: transparent;
+}
+.mobile-nav-inner{display:flex;align-items:stretch}
+.mobile-nav-item{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:10px 4px 8px;gap:3px;
+  color:var(--dim);font-size:.55rem;
+  letter-spacing:.06em;text-transform:uppercase;
+  cursor:pointer;transition:color .15s;position:relative;
+}
+.mobile-nav-item.active{color:var(--acc)}
+.mobile-nav-item.active::before{
+  content:'';position:absolute;
+  top:0;left:20%;right:20%;
+  height:2px;background:var(--acc);
+}
+.mobile-nav-icon{font-size:1.2rem;line-height:1}
+
+@media(max-width:768px){
+  .mobile-nav.mnav-ready{display:block}
+}
+
+/* Планшет */
+@media(min-width:769px) and (max-width:1024px){
+  .sidebar{width:200px;min-width:200px}
+  .main-scroll{padding:32px 32px 120px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+}
+/* ════════════════════════════════════
+   UTIL
+   ════════════════════════════════════ */
+.hidden{display:none!important}
+.flex{display:flex;align-items:center}
+.gap-2{gap:8px}
+.gap-3{gap:12px}
+.mt-1{margin-top:4px}
+.mt-2{margin-top:8px}
+.mt-3{margin-top:16px}
+.mb-3{margin-bottom:16px}
+.text-acc{color:var(--acc)}
+.text-gold{color:var(--gold)}
+.text-dim{color:var(--dim)}
+.text-sm{font-size:.82rem}
+.section-divider{height:1px;background:var(--s3);margin:32px 0}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════
+     PAGES
+     ════════════════════════════════════════════════════════ -->
+
+<!-- LANDING PAGE -->
+<div id="pg-landing" class="page active">
+  <div style="min-height:100vh;display:flex;flex-direction:column;position:relative;overflow:hidden">
+
+    <!-- орбы фона -->
+    <div style="position:absolute;width:600px;height:600px;border-radius:50%;filter:blur(120px);background:radial-gradient(circle,rgba(78,168,130,.14),transparent 70%);top:-150px;left:-100px;pointer-events:none"></div>
+    <div style="position:absolute;width:400px;height:400px;border-radius:50%;filter:blur(100px);background:radial-gradient(circle,rgba(80,100,180,.1),transparent 70%);bottom:-100px;right:-50px;pointer-events:none"></div>
+
+    <!-- NAV -->
+    <nav style="display:flex;justify-content:space-between;align-items:center;padding:24px 48px;position:relative;z-index:1">
+      <div style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:1.7rem;color:var(--pale);letter-spacing:.05em">
+        Ти<span style="color:var(--acc);font-style:italic">ши</span>на
+      </div>
+      <div style="display:flex;gap:12px">
+        <button class="btn btn-ghost btn-sm" onclick="showPage('pg-login')">Войти</button>
+        <button class="btn btn-primary btn-sm" onclick="showPage('pg-register')">Начать бесплатно</button>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 24px;position:relative;z-index:1">
+
+      <div style="font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:var(--acc);margin-bottom:24px">
+        Пространство внутренней тишины
+      </div>
+
+      <h1 style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(3rem,8vw,6rem);color:var(--pale);line-height:1.05;margin-bottom:24px;max-width:800px">
+        Медитации для<br><em style="color:var(--acc);font-style:italic">каждого дня</em>
+      </h1>
+
+      <p style="font-size:1rem;color:var(--mist);max-width:480px;line-height:1.8;margin-bottom:48px">
+        Снижайте тревогу, улучшайте сон и находите покой — с помощью голосовых медитаций на русском языке
+      </p>
+
+      <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-bottom:80px">
+        <button class="btn btn-primary" onclick="showPage('pg-register')" style="padding:16px 40px;font-size:.9rem">
+          Попробовать бесплатно
+        </button>
+        <button class="btn btn-ghost" onclick="showPage('pg-login')" style="padding:16px 40px;font-size:.9rem">
+          Уже есть аккаунт
+        </button>
+      </div>
+
+      <!-- ПРЕИМУЩЕСТВА -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2px;max-width:900px;width:100%;margin-bottom:60px">
+
+        <div style="background:var(--s1);padding:32px 28px;text-align:left;border:1px solid var(--s3)">
+          <div style="font-size:1.8rem;margin-bottom:16px">◯</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--pale);margin-bottom:10px">Бесплатно навсегда</div>
+          <div style="font-size:.83rem;color:var(--mist);line-height:1.7">Десятки медитаций доступны без оплаты — зарегистрируйся и слушай прямо сейчас</div>
+        </div>
+
+        <div style="background:var(--s1);padding:32px 28px;text-align:left;border:1px solid var(--s3)">
+          <div style="font-size:1.8rem;margin-bottom:16px">✦</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--pale);margin-bottom:10px">Premium за 100 ₽</div>
+          <div style="font-size:.83rem;color:var(--mist);line-height:1.7">Полный доступ ко всем медитациям — дешевле чашки кофе в месяц</div>
+        </div>
+
+        <div style="background:var(--s1);padding:32px 28px;text-align:left;border:1px solid var(--s3)">
+          <div style="font-size:1.8rem;margin-bottom:16px">☽</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--pale);margin-bottom:10px">На русском языке</div>
+          <div style="font-size:.83rem;color:var(--mist);line-height:1.7">Все медитации записаны на русском — никакого языкового барьера</div>
+        </div>
+
+        <div style="background:var(--s1);padding:32px 28px;text-align:left;border:1px solid var(--s3)">
+          <div style="font-size:1.8rem;margin-bottom:16px">◷</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--pale);margin-bottom:10px">От 5 минут</div>
+          <div style="font-size:.83rem;color:var(--mist);line-height:1.7">Короткие практики для занятых людей — можно слушать в перерыве или перед сном</div>
+        </div>
+
+      </div>
+
+      <!-- ЦЕНА -->
+      <div style="background:var(--s1);border:1px solid var(--s3);padding:40px 48px;max-width:480px;width:100%;text-align:center;margin-bottom:48px">
+        <div style="font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--acc);margin-bottom:12px">Premium подписка</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:4rem;color:var(--gold);line-height:1">
+          100 <span style="font-size:1.2rem;color:var(--mist)">₽ / месяц</span>
+        </div>
+        <div style="font-size:.83rem;color:var(--mist);margin:16px 0 28px;line-height:1.7">
+          Все медитации · Новинки каждую неделю · Без рекламы
+        </div>
+        <button class="btn btn-gold btn-full" onclick="showPage('pg-register')" style="padding:14px">
+          Оформить Premium
+        </button>
+      </div>
+
+      <div style="font-size:.72rem;color:var(--dim);text-align:center">
+        © 2025 Тишина · Все права защищены<br>
+        <span style="margin-top:6px;display:inline-block">
+          По всем вопросам: <a href="/cdn-cgi/l/email-protection#4a272f382330302564333e0a2d272b232664292527" style="color:var(--acc);text-decoration:none"><span class="__cf_email__" data-cfemail="0d60687f647777622374794d6a606c6461236e6260">[email&#160;protected]</span></a>
+        </span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN PAGE -->
+<div id="pg-login" class="page">
+  <div class="auth-wrap">
+    <div class="auth-orb a"></div>
+    <div class="auth-orb b"></div>
+    <div class="auth-card">
+      <div class="auth-logo">Ти<span>ши</span>на</div>
+      <p class="auth-sub">Пространство внутреннего покоя</p>
+      <h2 class="auth-title">Добро пожаловать</h2>
+      <p class="auth-sub" style="margin-bottom:32px">Войдите в аккаунт</p>
+      <div class="err-msg" id="login-err"></div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="your@email.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label>Пароль</label>
+        <input type="password" id="login-pwd" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="doLogin()">
+        <span id="login-txt">Войти</span>
+      </button>
+      <div class="auth-switch">
+        Нет аккаунта? <a onclick="showPage('pg-register')">Зарегистрироваться</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTER PAGE -->
+<div id="pg-register" class="page">
+  <div class="auth-wrap">
+    <div class="auth-orb a"></div>
+    <div class="auth-orb b"></div>
+    <div class="auth-card">
+      <div class="auth-logo">Ти<span>ши</span>на</div>
+      <p class="auth-sub">Пространство внутреннего покоя</p>
+      <h2 class="auth-title">Создать аккаунт</h2>
+      <p class="auth-sub" style="margin-bottom:32px">Начните практику прямо сейчас</p>
+      <div class="err-msg" id="reg-err"></div>
+      <div class="field">
+        <label>Имя</label>
+        <input type="text" id="reg-name" placeholder="Ваше имя" autocomplete="name">
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="reg-email" placeholder="your@email.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label>Пароль</label>
+        <input type="password" id="reg-pwd" placeholder="Минимум 6 символов" autocomplete="new-password">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="doRegister()">
+        <span id="reg-txt">Создать аккаунт</span>
+      </button>
+      <div class="auth-switch">
+        Уже есть аккаунт? <a onclick="showPage('pg-login')">Войти</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="pg-app" class="page">
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">Ти<span>ши</span>на</div>
+      <nav class="sidebar-nav">
+        <div class="nav-item active" onclick="switchTab('meditations')" id="nav-meditations">
+          <span class="nav-icon">◯</span> Медитации
+        </div>
+        <div class="nav-item" onclick="switchTab('favorites')" id="nav-favorites">
+          <span class="nav-icon">♡</span> Избранное
+        </div>
+        <div class="nav-item" onclick="switchTab('history')" id="nav-history">
+          <span class="nav-icon">◷</span> История
+        </div>
+        <div class="nav-item" onclick="switchTab('subscription')" id="nav-subscription">
+          <span class="nav-icon">✦</span> Подписка
+          <span class="nav-badge hidden" id="premium-badge">PRO</span>
+        </div>
+        <div class="nav-item hidden" onclick="switchTab('admin')" id="nav-admin">
+          <span class="nav-icon">⚙</span> Админ-панель
+        </div>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="user-chip">
+          <div class="user-avatar" id="user-avatar">?</div>
+          <div>
+            <div class="user-name" id="user-display-name">...</div>
+            <div class="user-role" id="user-role-badge">Загрузка...</div>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-full btn-sm" onclick="doLogout()">Выйти</button>
+      </div>
+    </aside>
+
+    <!-- MAIN SCROLL -->
+    <main class="main-content">
+      <div class="main-scroll">
+
+        <!-- ── TAB: MEDITATIONS ── -->
+        <div id="tab-meditations" class="tab-content">
+          <div class="page-hdr">
+            <h1>Медитации</h1>
+            <p>Ваше пространство для практики и тишины</p>
+          </div>
+          <div class="grid" id="med-grid">
+            <!-- skeleton -->
+            <div class="skel-card skeleton"><div class="skel-cover skeleton"></div><div class="skel-line skeleton"></div><div class="skel-line short skeleton"></div></div>
+            <div class="skel-card skeleton"></div>
+            <div class="skel-card skeleton"></div>
+          </div>
+        </div>
+
+        <!-- ── TAB: FAVORITES ── -->
+        <div id="tab-favorites" class="tab-content hidden">
+          <div class="page-hdr">
+            <h1>Избранное</h1>
+            <p>Медитации, которые вы сохранили</p>
+          </div>
+          <div class="grid" id="fav-grid"></div>
+        </div>
+
+        <!-- ── TAB: HISTORY ── -->
+        <div id="tab-history" class="tab-content hidden">
+          <div class="page-hdr">
+            <h1>История</h1>
+            <p>Ваши прослушанные медитации</p>
+          </div>
+          <div class="stats-row">
+            <div class="stat-card">
+              <div class="stat-num serif" id="stat-total">0</div>
+              <div class="stat-label">Сессий</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num serif" id="stat-minutes">0</div>
+              <div class="stat-label">Минут</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num serif" id="stat-streak">0</div>
+              <div class="stat-label">Дней подряд</div>
+            </div>
+          </div>
+          <div class="history-list" id="history-list"></div>
+        </div>
+
+        <!-- ── TAB: SUBSCRIPTION ── -->
+        <div id="tab-subscription" class="tab-content hidden">
+          <div class="page-hdr">
+            <h1>Подписка</h1>
+            <p>Откройте полный доступ ко всем медитациям</p>
+          </div>
+          <div id="sub-content"></div>
+        </div>
+
+        <!-- ── TAB: ADMIN ── -->
+        <div id="tab-admin" class="tab-content hidden">
+          <div class="page-hdr">
+            <h1>Админ-панель</h1>
+            <p>Управление контентом и настройками</p>
+          </div>
+
+          <div class="admin-tabs">
+            <div class="admin-tab active" onclick="switchAdminTab('upload')">Загрузить</div>
+            <div class="admin-tab" onclick="switchAdminTab('manage')">Медитации</div>
+            <div class="admin-tab" onclick="switchAdminTab('users')">Пользователи</div>
+            <div class="admin-tab" onclick="switchAdminTab('requests')">
+              Заявки <span id="req-badge" style="background:var(--gold);color:var(--bg);font-size:.55rem;padding:1px 5px;margin-left:4px;display:none">0</span>
+            </div>
+            <div class="admin-tab" onclick="switchAdminTab('settings')">Настройки</div>
+          </div>
+
+          <!-- Upload tab -->
+          <div id="admin-upload" class="admin-tab-content active">
+            <div class="admin-form">
+              <div class="field">
+                <label>Название медитации *</label>
+                <input type="text" id="a-title" placeholder="Утреннее дыхание">
+              </div>
+              <div class="field">
+                <label>Описание *</label>
+                <textarea id="a-desc" placeholder="Описание медитации..."></textarea>
+              </div>
+              <div class="field">
+                <label>Категория</label>
+                <input type="text" id="a-cat" placeholder="Дыхание, Осознанность, Сон...">
+              </div>
+              <div class="field">
+                <label>Тип доступа *</label>
+                <select id="a-access">
+                  <option value="free">Бесплатная</option>
+                  <option value="premium">Только Premium</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Ссылка на аудио * (MP3/OGG/WAV)</label>
+                <input type="url" id="a-audio-url" placeholder="https://example.com/meditation.mp3">
+                <div style="margin-top:6px;font-size:.72rem;color:var(--dim)">
+                  Где взять ссылку: Google Drive → ПКМ → Получить ссылку → Все у кого есть ссылка → скопировать и преобразовать через
+                  <a href="https://sites.google.com/view/gdirect" target="_blank" style="color:var(--acc)">gdirect</a>,
+                  или Dropbox (замени ?dl=0 на ?raw=1), или любой CDN.
+                </div>
+              </div>
+              <div class="field">
+                <label>Длительность (минуты : секунды)</label>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <input type="number" id="a-dur-min" placeholder="10" min="0" style="width:80px">
+                  <span style="color:var(--dim)">мин</span>
+                  <input type="number" id="a-dur-sec" placeholder="00" min="0" max="59" style="width:80px">
+                  <span style="color:var(--dim)">сек</span>
+                </div>
+              </div>
+              <div class="field">
+                <label>Ссылка на обложку (опционально)</label>
+                <input type="url" id="a-cover-url" placeholder="https://example.com/cover.jpg">
+                <div style="margin-top:6px;font-size:.72rem;color:var(--dim)">
+                  Можно использовать любую публичную картинку из интернета или загрузить на <a href="https://imgur.com" target="_blank" style="color:var(--acc)">imgur.com</a> бесплатно.
+                </div>
+              </div>
+              <button class="btn btn-primary" onclick="uploadMeditation()" id="upload-btn">
+                Опубликовать медитацию
+              </button>
+            </div>
+          </div>
+
+          <!-- Manage tab -->
+          <div id="admin-manage" class="admin-tab-content">
+            <div style="overflow-x:auto">
+              <table class="med-table">
+                <thead>
+                  <tr>
+                    <th>Название</th>
+                    <th>Категория</th>
+                    <th>Доступ</th>
+                    <th>Длит.</th>
+                    <th>Прослуш.</th>
+                    <th>Действия</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-med-table"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Users tab -->
+          <div id="admin-users" class="admin-tab-content">
+            <div style="overflow-x:auto">
+              <table class="med-table">
+                <thead>
+                  <tr>
+                    <th>Имя</th>
+                    <th>Email</th>
+                    <th>Статус</th>
+                    <th>Дата</th>
+                    <th>Действия</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-users-table"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Settings tab -->
+          <!-- Requests tab -->
+          <div id="admin-requests" class="admin-tab-content">
+            <div style="overflow-x:auto">
+              <table class="med-table">
+                <thead>
+                  <tr>
+                    <th>Имя в платеже</th>
+                    <th>Email аккаунта</th>
+                    <th>Имя аккаунта</th>
+                    <th>Время заявки</th>
+                    <th>Статус</th>
+                    <th>Действия</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-requests-table"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="admin-settings" class="admin-tab-content">
+            <div class="admin-form">
+              <h3 class="serif" style="font-size:1.4rem;color:var(--pale);margin-bottom:24px">Настройки подписки</h3>
+              <div class="field">
+                <label>Цена подписки</label>
+                <input type="number" id="s-price" placeholder="299">
+              </div>
+              <div class="field">
+                <label>Валюта</label>
+                <input type="text" id="s-currency" placeholder="₽">
+              </div>
+              <div class="field">
+                <label>Период</label>
+                <input type="text" id="s-period" placeholder="месяц">
+              </div>
+              <div class="field">
+                <label>Ссылка на оплату</label>
+                <input type="url" id="s-payurl" placeholder="https://your-payment-link.com">
+              </div>
+              <div class="field">
+                <label>Описание (показывается пользователям)</label>
+                <textarea id="s-desc" placeholder="Полный доступ ко всем медитациям..."></textarea>
+              </div>
+              <button class="btn btn-primary" onclick="saveSettings()">Сохранить настройки</button>
+            </div>
+          </div>
+
+        </div><!-- /tab-admin -->
+
+      </div><!-- /main-scroll -->
+
+      <!-- Футер внутри приложения -->
+      <div style="padding:16px 48px;border-top:1px solid var(--s3);display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
+        <div style="font-size:.7rem;color:var(--dim)">© 2025 Тишина · Все права защищены</div>
+        <a href="/cdn-cgi/l/email-protection#d0bdb5a2b9aaaabffea9a490b7bdb1b9bcfeb3bfbd" style="font-size:.7rem;color:var(--acc);text-decoration:none">
+          <span class="__cf_email__" data-cfemail="442921362d3e3e2b6a3d30042329252d286a272b29">[email&#160;protected]</span>
+        </a>
+      </div>
+
+    </main>
+
+  </div><!-- /app-layout -->
+</div><!-- /pg-app -->
+
+<!-- ════════════════════════════════════
+     AUDIO PLAYER BAR
+     ════════════════════════════════════ -->
+<div class="player-bar" id="player-bar">
+  <div class="player-info">
+    <div class="player-track" id="pl-title">—</div>
+    <div class="player-cat" id="pl-cat">—</div>
+  </div>
+  <div class="player-controls">
+    <button class="ctrl" onclick="skipBack()" title="−15с">⟵</button>
+    <button class="ctrl-play" onclick="togglePlay()" id="pl-playbtn">▶</button>
+    <button class="ctrl" onclick="skipFwd()" title="+15с">⟶</button>
+  </div>
+  <div class="player-progress">
+    <span class="prog-time" id="pl-cur">0:00</span>
+    <div class="prog-bar" id="prog-bar">
+      <div class="prog-fill" id="prog-fill" style="width:0%"></div>
+      <input type="range" class="prog-input" id="prog-input" min="0" max="100" value="0" oninput="seekTo(this.value)">
+    </div>
+    <span class="prog-time" id="pl-dur">0:00</span>
+  </div>
+  <div class="player-vol">
+    <span class="vol-icon">🔊</span>
+    <input type="range" class="vol-range" min="0" max="100" value="80" oninput="setVolume(this.value)">
+  </div>
+  <button class="ctrl" onclick="closePlayer()" title="Закрыть">✕</button>
+</div>
+
+<!-- ════════════════════════════════════
+     PREMIUM MODAL
+     ════════════════════════════════════ -->
+<div class="premium-modal" id="premium-modal">
+  <div class="premium-card">
+    <button class="close" onclick="closePremiumModal()">✕</button>
+
+    <!-- ШАГ 1: предложение -->
+    <div id="pm-step1">
+      <div class="premium-icon">✦</div>
+      <h2>Premium доступ</h2>
+      <p style="color:var(--mist);font-size:.88rem">Эта медитация доступна только для Premium подписчиков</p>
+      <div class="premium-price">
+        <span id="m-cur">₽</span><span id="m-price" class="text-gold">299</span>
+        <span> / <span id="m-period">месяц</span></span>
+      </div>
+      <ul class="premium-features">
+        <li>Все медитации без ограничений</li>
+        <li>Новые медитации каждую неделю</li>
+        <li>Офлайн режим (скачивание)</li>
+        <li>Без рекламы</li>
+      </ul>
+      <button class="btn btn-gold btn-full" onclick="goToPay()" style="margin-bottom:12px">
+        Оформить подписку
+      </button>
+      <button class="btn btn-ghost btn-full btn-sm" onclick="closePremiumModal()">
+        Позже
+      </button>
+    </div>
+
+    <!-- ШАГ 2: форма подтверждения (появляется после перехода на оплату) -->
+    <div id="pm-step2" style="display:none">
+      <div class="premium-icon">✓</div>
+      <h2>Оплатили?</h2>
+      <p style="color:var(--mist);font-size:.88rem;margin-bottom:24px">
+        Введите имя точно как в платеже — мы найдём вашу оплату и активируем Premium в течение нескольких минут
+      </p>
+      <div class="field" style="margin-bottom:16px">
+        <label>Имя в платеже</label>
+        <input type="text" id="pm-payer-name" placeholder="Например: Надежда Т." style="width:100%;background:var(--s2);border:1px solid var(--s3);color:var(--pale);padding:12px 16px;font-size:.9rem;outline:none;font-family:inherit">
+      </div>
+      <button class="btn btn-gold btn-full" onclick="submitPaymentRequest()" style="margin-bottom:12px">
+        Я оплатил — активировать Premium
+      </button>
+      <button class="btn btn-ghost btn-full btn-sm" onclick="closePremiumModal()">
+        Закрыть
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toasts"></div>
+
+<!-- HIDDEN AUDIO -->
+<audio id="audio-engine" preload="auto"></audio>
+
+<!-- ════════════════════════════════════════════════════════
+     FIREBASE SDK
+     ════════════════════════════════════════════════════════ -->
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  signOut, onAuthStateChanged, updateProfile
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+  getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc,
+  deleteDoc, setDoc, query, orderBy, where, serverTimestamp, onSnapshot,
+  increment, limit
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+
+// ── Init ──────────────────────────────────────────────────
+const app  = initializeApp(window.FIREBASE_CONFIG);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── State ─────────────────────────────────────────────────
+let CUR_USER  = null;  // Firestore user doc
+let ALL_MEDS  = [];    // all meditations
+let FAVS      = new Set();
+let HISTORY   = [];
+let SETTINGS  = { ...window.APP_CONFIG };
+let audioDur  = 0;
+let audioPlaying = false;
+let historyTimer = null;
+let currentMed = null;
+
+// ════════════════════════════════════
+// AUTH
+// ════════════════════════════════════
+
+window.doRegister = async function() {
+  const name  = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pwd   = document.getElementById('reg-pwd').value;
+  const err   = document.getElementById('reg-err');
+
+  if (!name || !email || !pwd) { showErr(err, 'Заполните все поля'); return; }
+  if (pwd.length < 6)          { showErr(err, 'Пароль минимум 6 символов'); return; }
+
+  document.getElementById('reg-txt').textContent = 'Создаём аккаунт...';
+  err.classList.remove('show');
+
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pwd);
+    await updateProfile(cred.user, { displayName: name });
+
+    const isAdmin = email === window.APP_CONFIG.adminEmail;
+    const userDoc = {
+      uid:       cred.user.uid,
+      email,
+      name,
+      role:      isAdmin ? 'admin' : 'free',
+      createdAt: new Date().toISOString(),
+      premiumSince: null,
+      premiumUntil: null,
+    };
+    await setDoc(doc(db, 'users', cred.user.uid), userDoc);
+    toast('Добро пожаловать, ' + name + '! 🌿', 'success');
+  } catch(e) {
+    const msgs = {
+      'auth/email-already-in-use': 'Этот email уже зарегистрирован',
+      'auth/invalid-email':        'Неверный формат email',
+      'auth/weak-password':        'Пароль слишком простой',
+    };
+    showErr(err, msgs[e.code] || e.message);
+  }
+  document.getElementById('reg-txt').textContent = 'Создать аккаунт';
+};
+
+window.doLogin = async function() {
+  const email = document.getElementById('login-email').value.trim();
+  const pwd   = document.getElementById('login-pwd').value;
+  const err   = document.getElementById('login-err');
+
+  if (!email || !pwd) { showErr(err, 'Введите email и пароль'); return; }
+
+  document.getElementById('login-txt').textContent = 'Входим...';
+  err.classList.remove('show');
+
+  try {
+    await signInWithEmailAndPassword(auth, email, pwd);
+    toast('С возвращением 🌿', 'success');
+  } catch(e) {
+    const msgs = {
+      'auth/user-not-found':       'Пользователь не найден',
+      'auth/wrong-password':       'Неверный пароль',
+      'auth/invalid-credential':   'Неверный email или пароль',
+      'auth/too-many-requests':    'Слишком много попыток. Попробуйте позже',
+    };
+    showErr(err, msgs[e.code] || 'Ошибка входа');
+  }
+  document.getElementById('login-txt').textContent = 'Войти';
+};
+
+window.doLogout = async function() {
+  if (audioPlaying) stopAudio();
+  await signOut(auth);
+};
+
+// ── Auth state ────────────────────────────────────────────
+onAuthStateChanged(auth, async (fireUser) => {
+  if (!fireUser) {
+    CUR_USER = null;
+    showPage('pg-landing');
+    return;
+  }
+
+  // Load user doc
+  let snap = await getDoc(doc(db, 'users', fireUser.uid));
+  if (!snap.exists()) {
+    // Fallback: create doc
+    const isAdmin = fireUser.email === window.APP_CONFIG.adminEmail;
+    CUR_USER = {
+      uid:   fireUser.uid,
+      email: fireUser.email,
+      name:  fireUser.displayName || 'Пользователь',
+      role:  isAdmin ? 'admin' : 'free',
+      createdAt: new Date().toISOString(),
+    };
+    await setDoc(doc(db, 'users', fireUser.uid), CUR_USER);
+  } else {
+    CUR_USER = snap.data();
+    // Force admin if email matches
+    if (fireUser.email === window.APP_CONFIG.adminEmail && CUR_USER.role !== 'admin') {
+      await updateDoc(doc(db, 'users', fireUser.uid), { role: 'admin' });
+      CUR_USER.role = 'admin';
+    }
+  }
+
+  await loadSettings();
+  await initApp();
+});
+
+// ════════════════════════════════════
+// INIT APP
+// ════════════════════════════════════
+async function initApp() {
+  showPage('pg-app');
+  updateSidebar();
+  await loadFavorites();
+  await loadHistory();
+  await loadMeditations();
+  renderSubscriptionTab();
+}
+
+function updateSidebar() {
+  const u = CUR_USER;
+  document.getElementById('user-display-name').textContent = u.name || u.email;
+  document.getElementById('user-avatar').textContent = (u.name || u.email)[0].toUpperCase();
+  const roleEl = document.getElementById('user-role-badge');
+  if (u.role === 'admin')        roleEl.textContent = 'Администратор';
+  else if (u.role === 'premium') roleEl.textContent = 'Premium';
+  else                           roleEl.textContent = 'Бесплатный';
+
+  if (u.role === 'admin') {
+    document.getElementById('nav-admin').classList.remove('hidden');
+  }
+  if (u.role === 'premium') {
+    document.getElementById('premium-badge').classList.remove('hidden');
+  }
+}
+
+// ════════════════════════════════════
+// SETTINGS
+// ════════════════════════════════════
+async function loadSettings() {
+  try {
+    const snap = await getDoc(doc(db, 'settings', 'subscription'));
+    if (snap.exists()) Object.assign(SETTINGS, snap.data());
+  } catch(e) {}
+}
+
+window.saveSettings = async function() {
+  const s = {
+    price:      document.getElementById('s-price').value     || SETTINGS.price,
+    currency:   document.getElementById('s-currency').value  || SETTINGS.currency,
+    period:     document.getElementById('s-period').value    || SETTINGS.period,
+    paymentUrl: document.getElementById('s-payurl').value    || SETTINGS.paymentUrl,
+    description: document.getElementById('s-desc').value,
+  };
+  await setDoc(doc(db, 'settings', 'subscription'), s);
+  Object.assign(SETTINGS, s);
+  Object.assign(window.APP_CONFIG, s);
+  toast('Настройки сохранены', 'success');
+};
+
+// ════════════════════════════════════
+// MEDITATIONS
+// ════════════════════════════════════
+async function loadMeditations() {
+  const snap = await getDocs(query(collection(db, 'meditations'), orderBy('createdAt', 'desc')));
+  ALL_MEDS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  renderMeditationsGrid(ALL_MEDS, 'med-grid');
+  renderAdminTable();
+}
+
+function renderMeditationsGrid(meds, containerId) {
+  const grid = document.getElementById(containerId);
+  if (!meds.length) {
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="empty-icon">◯</div><p>Медитации не найдены</p></div>`;
+    return;
+  }
+  grid.innerHTML = meds.map(m => medCardHTML(m)).join('');
+}
+
+function medCardHTML(m) {
+  const isPremiumContent = m.accessType === 'premium';
+  const userCanAccess = CUR_USER.role === 'admin' || CUR_USER.role === 'premium' || !isPremiumContent;
+  const isFav = FAVS.has(m.id);
+
+  const coverStyle = m.coverUrl
+    ? `background:var(--s2)`
+    : `background:linear-gradient(135deg, ${randomGradient(m.id)})`;
+
+  return `
+  <div class="med-card ${!userCanAccess ? 'premium-locked' : ''}" onclick="onMedClick('${m.id}')">
+    <div class="med-cover ${m.coverUrl ? 'has-img' : ''}" style="${coverStyle}">
+      ${m.coverUrl ? `<img src="${m.coverUrl}" alt="${m.title}" loading="lazy">` : `<span>${categoryEmoji(m.category)}</span>`}
+      <div class="med-cover-gradient"></div>
+      <div class="med-access ${isPremiumContent ? 'access-premium' : 'access-free'}">
+        ${isPremiumContent ? '✦ Premium' : 'Бесплатно'}
+      </div>
+      ${!userCanAccess ? `<div class="lock-overlay"><span>🔒</span><span>Premium</span></div>` : ''}
+    </div>
+    <div class="med-dur">${formatDur(m.duration || 0)}</div>
+    <div class="med-title">${m.title}</div>
+    <div class="med-desc">${m.description || ''}</div>
+    <div class="med-meta">
+      <span class="med-cat">${m.category || 'Без категории'}</span>
+      <span class="med-plays">· ${m.plays || 0} прослуш.</span>
+    </div>
+    <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav(event,'${m.id}')" title="В избранное">
+      ${isFav ? '♥' : '♡'}
+    </button>
+  </div>`;
+}
+
+window.onMedClick = function(id) {
+  const m = ALL_MEDS.find(x => x.id === id);
+  if (!m) return;
+
+  const canPlay = CUR_USER.role === 'admin' || CUR_USER.role === 'premium' || m.accessType === 'free';
+  if (!canPlay) { showPremiumModal(); return; }
+
+  playMeditation(m);
+}
+
+// ── iOS AudioContext unlock ────────────────────────────────
+// iOS requires the AudioContext to be resumed on first user gesture.
+// We do a silent unlock once, so subsequent .play() calls work even
+// after async Firebase operations (which break the gesture chain).
+let _audioUnlocked = false;
+function unlockAudioContext() {
+  if (_audioUnlocked) return;
+  _audioUnlocked = true;
+  // Create a silent buffer and play it to "warm up" the audio stack
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const buf = ctx.createBuffer(1, 1, 22050);
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(ctx.destination);
+    src.start(0);
+    ctx.resume();
+  } catch(e) {}
+  // Also load a silent src into the audio element
+  try {
+    audio.load();
+  } catch(e) {}
+}
+
+// Call on ANY first user interaction
+document.addEventListener('touchstart', unlockAudioContext, { once: true, passive: true });
+document.addEventListener('click',      unlockAudioContext, { once: true, passive: true });
+
+// ════════════════════════════════════
+// AUDIO PLAYER
+// ════════════════════════════════════
+const audio = document.getElementById('audio-engine');
+
+function playMeditation(m) {
+  // Unlock AudioContext on this gesture (no-op if already done)
+  unlockAudioContext();
+
+  currentMed = m;
+  audioDur = 0;
+
+  let url = m.audioUrl || '';
+  url = url.replace('?dl=0', '?raw=1').replace('&dl=0', '?raw=1');
+  const gdMatch = url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
+  if (gdMatch) url = `https://drive.google.com/uc?export=download&id=${gdMatch[1]}`;
+
+  audio.pause();
+  audio.src = url;
+  audio.volume = 0.8;
+  audio.load();
+
+  document.getElementById('pl-title').textContent = m.title;
+  document.getElementById('pl-cat').textContent   = m.category || '';
+  document.getElementById('pl-playbtn').textContent = '⏸';
+  document.getElementById('player-bar').classList.add('visible');
+  document.getElementById('prog-fill').style.width = '0%';
+  document.getElementById('pl-cur').textContent = '0:00';
+  document.getElementById('pl-dur').textContent = '…';
+
+  // Play IMMEDIATELY — still inside the user gesture, before any async work.
+  // iOS forgets the gesture after the first await/setTimeout.
+  const playPromise = audio.play();
+  if (playPromise !== undefined) {
+    playPromise.then(() => {
+      audioPlaying = true;
+    }).catch(() => {
+      audioPlaying = false;
+      document.getElementById('pl-playbtn').textContent = '▶';
+      toast('Нажмите ▶ чтобы начать', 'info');
+    });
+  } else {
+    audioPlaying = true;
+  }
+
+  // Async Firestore calls AFTER play() — so they don't break the gesture chain
+  updateDoc(doc(db, 'meditations', m.id), { plays: increment(1) }).catch(() => {});
+  clearTimeout(historyTimer);
+  historyTimer = setTimeout(() => addToHistory(m), 10000);
+}
+
+audio.addEventListener('timeupdate', () => {
+  if (!audioDur) return;
+  const pct = (audio.currentTime / audioDur) * 100;
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-input').value = pct;
+  document.getElementById('pl-cur').textContent = formatDur(Math.floor(audio.currentTime));
+});
+
+audio.addEventListener('loadedmetadata', () => {
+  audioDur = audio.duration;
+  document.getElementById('pl-dur').textContent = isFinite(audioDur)
+    ? formatDur(Math.floor(audioDur)) : '∞';
+});
+
+audio.addEventListener('canplay', () => {
+  if (audioPlaying) return;
+});
+
+audio.addEventListener('error', (e) => {
+  const codes = { 1:'Загрузка прервана', 2:'Сетевая ошибка', 3:'Ошибка декодирования', 4:'Формат не поддерживается' };
+  const msg = codes[audio.error?.code] || 'Ошибка загрузки аудио';
+  toast(msg + '. Проверьте ссылку.', 'error');
+  document.getElementById('pl-playbtn').textContent = '▶';
+  audioPlaying = false;
+  console.error('Audio error:', audio.error, 'src:', audio.src);
+});
+
+audio.addEventListener('ended', () => {
+  audioPlaying = false;
+  document.getElementById('pl-playbtn').textContent = '▶';
+  document.getElementById('prog-fill').style.width = '100%';
+  if (currentMed) addToHistory(currentMed, true);
+});
+
+window.togglePlay = function() {
+  if (!audio.src) return;
+  if (audio.paused) {
+    audio.play().then(() => {
+      audioPlaying = true;
+      document.getElementById('pl-playbtn').textContent = '⏸';
+    }).catch(() => toast('Не удалось воспроизвести', 'error'));
+  } else {
+    audio.pause();
+    audioPlaying = false;
+    document.getElementById('pl-playbtn').textContent = '▶';
+  }
+};
+
+window.skipBack = () => { audio.currentTime = Math.max(0, audio.currentTime - 15); };
+window.skipFwd  = () => { audio.currentTime = Math.min(audioDur || 0, audio.currentTime + 15); };
+
+window.seekTo = function(val) {
+  if (!audioDur || !isFinite(audioDur)) return;
+  audio.currentTime = (val / 100) * audioDur;
+};
+
+window.setVolume = function(val) {
+  audio.volume = val / 100;
+};
+
+function stopAudio() {
+  audio.pause();
+  audio.src = '';
+  audio.load();
+  audioPlaying = false;
+  currentMed = null;
+  audioDur = 0;
+}
+
+window.closePlayer = function() {
+  stopAudio();
+  document.getElementById('player-bar').classList.remove('visible');
+};
+
+// ════════════════════════════════════
+// FAVORITES
+// ════════════════════════════════════
+async function loadFavorites() {
+  const snap = await getDocs(collection(db, 'users', CUR_USER.uid, 'favorites'));
+  FAVS = new Set(snap.docs.map(d => d.id));
+}
+
+window.toggleFav = async function(e, id) {
+  e.stopPropagation();
+  const btn = e.currentTarget;
+
+  if (FAVS.has(id)) {
+    await deleteDoc(doc(db, 'users', CUR_USER.uid, 'favorites', id));
+    FAVS.delete(id);
+    btn.textContent = '♡';
+    btn.classList.remove('active');
+    toast('Удалено из избранного', 'info');
+  } else {
+    await setDoc(doc(db, 'users', CUR_USER.uid, 'favorites', id), {
+      addedAt: new Date().toISOString()
+    });
+    FAVS.add(id);
+    btn.textContent = '♥';
+    btn.classList.add('active');
+    toast('Добавлено в избранное ♥', 'success');
+  }
+};
+
+function renderFavorites() {
+  const favMeds = ALL_MEDS.filter(m => FAVS.has(m.id));
+  renderMeditationsGrid(favMeds, 'fav-grid');
+}
+
+// ════════════════════════════════════
+// HISTORY
+// ════════════════════════════════════
+async function loadHistory() {
+  const snap = await getDocs(query(
+    collection(db, 'users', CUR_USER.uid, 'history'),
+    orderBy('playedAt', 'desc'),
+    limit(50)
+  ));
+  HISTORY = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  renderHistory();
+}
+
+async function addToHistory(m, completed = false) {
+  const entry = {
+    meditationId: m.id,
+    title:        m.title,
+    category:     m.category || '',
+    duration:     Math.floor(audio.currentTime),
+    completed,
+    playedAt:     new Date().toISOString(),
+  };
+  await addDoc(collection(db, 'users', CUR_USER.uid, 'history'), entry);
+  HISTORY.unshift({ id: 'tmp', ...entry });
+  renderHistory();
+}
+
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  // Stats
+  const totalSessions = HISTORY.length;
+  const totalMinutes  = Math.round(HISTORY.reduce((s, h) => s + (h.duration || 0), 0) / 60);
+  const streak        = calcStreak();
+  document.getElementById('stat-total').textContent   = totalSessions;
+  document.getElementById('stat-minutes').textContent = totalMinutes;
+  document.getElementById('stat-streak').textContent  = streak;
+
+  if (!HISTORY.length) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">◷</div><p>История пуста. Начните первую медитацию</p></div>`;
+    return;
+  }
+  list.innerHTML = HISTORY.slice(0, 20).map(h => {
+    const m = ALL_MEDS.find(x => x.id === h.meditationId);
+    return `
+    <div class="history-item" onclick="onMedClick('${h.meditationId}')">
+      <div class="history-thumb">${categoryEmoji(h.category)}</div>
+      <div class="history-info">
+        <div class="history-name">${h.title || '—'}</div>
+        <div class="history-date">${formatDate(h.playedAt)}</div>
+      </div>
+      <div class="history-dur">${formatDur(h.duration)} ${h.completed ? '✓' : ''}</div>
+    </div>`;
+  }).join('');
+}
+
+function calcStreak() {
+  if (!HISTORY.length) return 0;
+  const days = [...new Set(HISTORY.map(h => h.playedAt.slice(0,10)))].sort().reverse();
+  let streak = 1, today = new Date().toISOString().slice(0,10);
+  if (days[0] !== today && days[0] !== new Date(Date.now()-86400000).toISOString().slice(0,10)) return 0;
+  for (let i = 1; i < days.length; i++) {
+    const prev = new Date(days[i-1]), curr = new Date(days[i]);
+    if ((prev - curr) / 86400000 === 1) streak++;
+    else break;
+  }
+  return streak;
+}
+
+// ════════════════════════════════════
+// SUBSCRIPTION TAB
+// ════════════════════════════════════
+function renderSubscriptionTab() {
+  const el = document.getElementById('sub-content');
+  const isPrem = CUR_USER.role === 'premium' || CUR_USER.role === 'admin';
+  const S = SETTINGS;
+
+  if (isPrem) {
+    el.innerHTML = `
+    <div style="max-width:480px">
+      <div style="background:var(--s1);border:1px solid var(--s3);padding:40px;text-align:center">
+        <div style="font-size:2.5rem;margin-bottom:16px">✦</div>
+        <h2 class="serif" style="font-size:2rem;color:var(--pale);margin-bottom:12px">Premium активен</h2>
+        <p style="color:var(--mist);font-size:.88rem">У вас есть полный доступ ко всем медитациям</p>
+      </div>
+    </div>`;
+  } else {
+    el.innerHTML = `
+    <div style="max-width:480px">
+      <div id="sub-step1" style="background:var(--s1);border:1px solid var(--s3);padding:48px;text-align:center">
+        <div style="font-size:2.5rem;margin-bottom:20px">✦</div>
+        <h2 class="serif" style="font-size:2.2rem;color:var(--pale);margin-bottom:12px">Premium</h2>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:3.5rem;color:var(--gold);margin:24px 0">
+          ${S.currency}${S.price}<span style="font-size:1rem;color:var(--mist);font-family:inherit"> / ${S.period}</span>
+        </div>
+        <ul class="premium-features" style="text-align:left;margin-bottom:32px">
+          <li>Все медитации без ограничений</li>
+          <li>Новые медитации каждую неделю</li>
+          <li>Офлайн режим</li>
+          <li>Без рекламы</li>
+        </ul>
+        <button class="btn btn-gold btn-full" onclick="subGoToPay()">Оформить подписку</button>
+      </div>
+      <div id="sub-step2" style="display:none;background:var(--s1);border:1px solid var(--s3);padding:48px;text-align:center;margin-top:2px">
+        <div style="font-size:2.5rem;margin-bottom:16px">✓</div>
+        <h2 class="serif" style="font-size:2rem;color:var(--pale);margin-bottom:12px">Оплатили?</h2>
+        <p style="color:var(--mist);font-size:.88rem;margin-bottom:28px;line-height:1.7">
+          Введите имя точно как в платеже — активируем Premium в течение нескольких минут
+        </p>
+        <div class="field" style="margin-bottom:16px;text-align:left">
+          <label>Имя в платеже</label>
+          <input type="text" id="sub-payer-name" placeholder="Например: Надежда Т."
+            style="width:100%;background:var(--s2);border:1px solid var(--s3);color:var(--pale);padding:12px 16px;font-size:.9rem;outline:none;font-family:inherit">
+        </div>
+        <button class="btn btn-gold btn-full" onclick="subSubmitPayment()" style="margin-bottom:12px">
+          Я оплатил — активировать Premium
+        </button>
+        <button class="btn btn-ghost btn-full btn-sm" onclick="subBackToStep1()">Назад</button>
+      </div>
+    </div>`;
+  }
+}
+
+window.subGoToPay = function() {
+  const url = SETTINGS.paymentUrl || window.APP_CONFIG.paymentUrl;
+  if (!url || url.includes('your-payment')) {
+    toast('Ссылка на оплату не настроена (Admin → Настройки)', 'error');
+    return;
+  }
+  window.open(url, '_blank');
+  document.getElementById('sub-step1').style.display = 'none';
+  document.getElementById('sub-step2').style.display = 'block';
+};
+
+window.subBackToStep1 = function() {
+  document.getElementById('sub-step1').style.display = 'block';
+  document.getElementById('sub-step2').style.display = 'none';
+};
+
+window.subSubmitPayment = async function() {
+  const name = document.getElementById('sub-payer-name').value.trim();
+  if (!name) { toast('Введите имя как в платеже', 'error'); return; }
+  try {
+    await addDoc(collection(db, 'payment_requests'), {
+      uid: CUR_USER.uid, email: CUR_USER.email,
+      userName: CUR_USER.name || CUR_USER.email,
+      payerName: name, status: 'pending',
+      createdAt: new Date().toISOString(),
+    });
+    document.getElementById('sub-step2').innerHTML = `
+      <div style="font-size:2.5rem;margin-bottom:16px">🌿</div>
+      <h2 class="serif" style="font-size:2rem;color:var(--pale);margin-bottom:12px">Заявка отправлена</h2>
+      <p style="color:var(--mist);font-size:.88rem;line-height:1.7">
+        Мы проверим оплату и активируем Premium в ближайшее время. Спасибо!
+      </p>`;
+    toast('Заявка отправлена ✦', 'success');
+  } catch(e) { toast('Ошибка. Попробуйте ещё раз.', 'error'); }
+};
+
+window.goToPay = function() {
+  const url = SETTINGS.paymentUrl || window.APP_CONFIG.paymentUrl;
+  if (!url || url.includes('your-payment')) {
+    toast('Ссылка на оплату не настроена (Admin → Настройки)', 'error');
+    return;
+  }
+  window.open(url, '_blank');
+  // Show step 2 after user went to payment page
+  document.getElementById('pm-step1').style.display = 'none';
+  document.getElementById('pm-step2').style.display = 'block';
+  document.getElementById('pm-payer-name').value = '';
+};
+
+window.submitPaymentRequest = async function() {
+  const name = document.getElementById('pm-payer-name').value.trim();
+  if (!name) { toast('Введите имя как в платеже', 'error'); return; }
+
+  try {
+    await addDoc(collection(db, 'payment_requests'), {
+      uid:       CUR_USER.uid,
+      email:     CUR_USER.email,
+      userName:  CUR_USER.name || CUR_USER.email,
+      payerName: name,
+      status:    'pending',
+      createdAt: new Date().toISOString(),
+    });
+    closePremiumModal();
+    toast('Заявка отправлена! Активируем Premium в ближайшее время ✦', 'success');
+  } catch(e) {
+    toast('Ошибка. Попробуйте ещё раз.', 'error');
+  }
+};
+
+window.showPremiumModal = function() {
+  const S = SETTINGS;
+  document.getElementById('m-price').textContent  = S.price;
+  document.getElementById('m-cur').textContent    = S.currency;
+  document.getElementById('m-period').textContent = S.period;
+  // Always reset to step 1
+  document.getElementById('pm-step1').style.display = 'block';
+  document.getElementById('pm-step2').style.display = 'none';
+  document.getElementById('premium-modal').classList.add('show');
+};
+window.closePremiumModal = function() {
+  document.getElementById('premium-modal').classList.remove('show');
+  // Reset to step 1
+  setTimeout(() => {
+    document.getElementById('pm-step1').style.display = 'block';
+    document.getElementById('pm-step2').style.display = 'none';
+  }, 300);
+};
+
+// ════════════════════════════════════
+// ADMIN — UPLOAD (URL-based, no Storage)
+// ════════════════════════════════════
+window.uploadMeditation = async function() {
+  const title    = document.getElementById('a-title').value.trim();
+  const desc     = document.getElementById('a-desc').value.trim();
+  const cat      = document.getElementById('a-cat').value.trim();
+  const access   = document.getElementById('a-access').value;
+  const audioUrl = document.getElementById('a-audio-url').value.trim();
+  const coverUrl = document.getElementById('a-cover-url').value.trim();
+  const durMin   = parseInt(document.getElementById('a-dur-min').value) || 0;
+  const durSec   = parseInt(document.getElementById('a-dur-sec').value) || 0;
+  const duration = durMin * 60 + durSec;
+
+  if (!title)    { toast('Введите название', 'error'); return; }
+  if (!desc)     { toast('Введите описание', 'error'); return; }
+  if (!audioUrl) { toast('Введите ссылку на аудио', 'error'); return; }
+
+  const btn = document.getElementById('upload-btn');
+  btn.textContent = 'Сохраняем...';
+  btn.disabled = true;
+
+  try {
+    const medData = {
+      title, description: desc,
+      category: cat || 'Без категории',
+      accessType: access,
+      audioUrl, coverUrl,
+      duration,
+      plays:     0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    const docRef = await addDoc(collection(db, 'meditations'), medData);
+    ALL_MEDS.unshift({ id: docRef.id, ...medData });
+
+    // Reset form
+    ['a-title','a-desc','a-cat','a-audio-url','a-cover-url','a-dur-min','a-dur-sec']
+      .forEach(id => { document.getElementById(id).value = ''; });
+
+    renderMeditationsGrid(ALL_MEDS, 'med-grid');
+    renderAdminTable();
+    toast('Медитация опубликована! ✦', 'success');
+  } catch(e) {
+    console.error(e);
+    toast('Ошибка: ' + e.message, 'error');
+  }
+
+  btn.textContent = 'Опубликовать медитацию';
+  btn.disabled = false;
+};
+
+// ════════════════════════════════════
+// ADMIN — MANAGE
+// ════════════════════════════════════
+function renderAdminTable() {
+  const tbody = document.getElementById('admin-med-table');
+  if (!ALL_MEDS.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="text-dim" style="text-align:center;padding:32px">Медитаций нет</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = ALL_MEDS.map(m => `
+  <tr>
+    <td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.title}</td>
+    <td>${m.category || '—'}</td>
+    <td><span class="${m.accessType === 'premium' ? 'access-premium' : 'access-free'} med-access" style="position:relative;top:0;right:0">
+      ${m.accessType === 'premium' ? '✦ Premium' : 'Free'}</span></td>
+    <td>${formatDur(m.duration || 0)}</td>
+    <td>${m.plays || 0}</td>
+    <td><div class="actions">
+      <button class="btn btn-ghost btn-sm" onclick="toggleAccess('${m.id}','${m.accessType}')">
+        ${m.accessType === 'free' ? '→ Premium' : '→ Free'}
+      </button>
+      <button class="btn btn-danger btn-sm" onclick="deleteMed('${m.id}')">Удалить</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+window.toggleAccess = async function(id, current) {
+  const newType = current === 'free' ? 'premium' : 'free';
+  await updateDoc(doc(db, 'meditations', id), { accessType: newType });
+  const m = ALL_MEDS.find(x => x.id === id);
+  if (m) m.accessType = newType;
+  renderAdminTable();
+  renderMeditationsGrid(ALL_MEDS, 'med-grid');
+  toast('Доступ изменён', 'success');
+};
+
+window.deleteMed = async function(id) {
+  if (!confirm('Удалить медитацию? Это необратимо.')) return;
+  await deleteDoc(doc(db, 'meditations', id));
+  ALL_MEDS = ALL_MEDS.filter(m => m.id !== id);
+  renderAdminTable();
+  renderMeditationsGrid(ALL_MEDS, 'med-grid');
+  toast('Медитация удалена', 'info');
+};
+
+// ════════════════════════════════════
+// ADMIN — USERS
+// ════════════════════════════════════
+async function loadAdminUsers() {
+  const snap = await getDocs(query(collection(db, 'users'), orderBy('createdAt', 'desc')));
+  const users = snap.docs.map(d => d.data());
+  const tbody = document.getElementById('admin-users-table');
+
+  tbody.innerHTML = users.map(u => `
+  <tr>
+    <td>${u.name || '—'}</td>
+    <td>${u.email}</td>
+    <td><span class="${u.role === 'premium' || u.role === 'admin' ? 'access-premium' : 'access-free'} med-access" style="position:relative;top:0;right:0">
+      ${u.role}</span></td>
+    <td>${u.createdAt ? u.createdAt.slice(0,10) : '—'}</td>
+    <td><div class="actions">
+      ${u.role === 'free'    ? `<button class="btn btn-gold btn-sm" onclick="grantPremium('${u.uid}')">→ Premium</button>` : ''}
+      ${u.role === 'premium' ? `<button class="btn btn-ghost btn-sm" onclick="revokePremium('${u.uid}')">→ Free</button>` : ''}
+    </div></td>
+  </tr>`).join('');
+}
+
+window.grantPremium = async function(uid) {
+  await updateDoc(doc(db, 'users', uid), {
+    role: 'premium',
+    premiumSince: new Date().toISOString(),
+  });
+  toast('Premium выдан!', 'success');
+  loadAdminUsers();
+};
+
+window.revokePremium = async function(uid) {
+  await updateDoc(doc(db, 'users', uid), { role: 'free', premiumSince: null });
+  toast('Premium отозван', 'info');
+  loadAdminUsers();
+};
+
+// ════════════════════════════════════
+// PAYMENT REQUESTS
+// ════════════════════════════════════
+async function loadPaymentRequests() {
+  const snap = await getDocs(query(
+    collection(db, 'payment_requests'),
+    orderBy('createdAt', 'desc')
+  ));
+  const requests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  // Badge
+  const pending = requests.filter(r => r.status === 'pending').length;
+  const badge = document.getElementById('req-badge');
+  if (pending > 0) { badge.textContent = pending; badge.style.display = 'inline'; }
+  else             { badge.style.display = 'none'; }
+
+  const tbody = document.getElementById('admin-requests-table');
+  if (!requests.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--dim)">Заявок пока нет</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = requests.map(r => `
+    <tr>
+      <td style="color:var(--gold);font-weight:500">${r.payerName}</td>
+      <td>${r.email}</td>
+      <td>${r.userName}</td>
+      <td style="font-size:.75rem;color:var(--dim)">${r.createdAt ? r.createdAt.slice(0,16).replace('T',' ') : '—'}</td>
+      <td>
+        ${r.status === 'pending'
+          ? `<span style="color:var(--gold);font-size:.72rem;letter-spacing:.1em">● ОЖИДАЕТ</span>`
+          : r.status === 'approved'
+          ? `<span style="color:var(--acc);font-size:.72rem;letter-spacing:.1em">✓ ВЫДАН</span>`
+          : `<span style="color:var(--dim);font-size:.72rem;letter-spacing:.1em">✕ ОТКЛОНЁН</span>`
+        }
+      </td>
+      <td>
+        <div class="actions">
+          ${r.status === 'pending' ? `
+            <button class="btn btn-gold btn-sm" onclick="approveRequest('${r.id}','${r.uid}')">✓ Выдать Premium</button>
+            <button class="btn btn-danger btn-sm" onclick="rejectRequest('${r.id}')">✕</button>
+          ` : '—'}
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+window.approveRequest = async function(reqId, uid) {
+  await updateDoc(doc(db, 'users', uid), {
+    role: 'premium',
+    premiumSince: new Date().toISOString(),
+  });
+  await updateDoc(doc(db, 'payment_requests', reqId), { status: 'approved' });
+  toast('Premium выдан! ✦', 'success');
+  loadPaymentRequests();
+};
+
+window.rejectRequest = async function(reqId) {
+  if (!confirm('Отклонить заявку?')) return;
+  await updateDoc(doc(db, 'payment_requests', reqId), { status: 'rejected' });
+  toast('Заявка отклонена', 'info');
+  loadPaymentRequests();
+};
+
+// ════════════════════════════════════
+// UI HELPERS
+// ════════════════════════════════════
+window.showPage = function(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+};
+
+let currentTab = 'meditations';
+window.switchTab = function(tab) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+  document.getElementById('tab-' + tab).classList.remove('hidden');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('nav-' + tab).classList.add('active');
+  currentTab = tab;
+
+  if (tab === 'favorites') renderFavorites();
+  if (tab === 'history')   renderHistory();
+  if (tab === 'admin')     {
+    loadAdminUsers();
+    loadPaymentRequests();
+    // Pre-fill settings
+    document.getElementById('s-price').value    = SETTINGS.price    || '';
+    document.getElementById('s-currency').value = SETTINGS.currency || '';
+    document.getElementById('s-period').value   = SETTINGS.period   || '';
+    document.getElementById('s-payurl').value   = SETTINGS.paymentUrl || '';
+    document.getElementById('s-desc').value     = SETTINGS.description || '';
+  }
+};
+
+window.switchAdminTab = function(tab) {
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.admin-tab-content').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('admin-' + tab).classList.add('active');
+  if (tab === 'requests') loadPaymentRequests();
+  if (tab === 'users')    loadAdminUsers();
+};
+
+function showErr(el, msg) {
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+// Toast
+window.toast = function(msg, type = 'info') {
+  const c = document.getElementById('toasts');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span>${type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ'}</span> ${msg}`;
+  c.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(20px)';
+    setTimeout(() => el.remove(), 300); }, 3500);
+};
+
+// ── Format helpers ──────────────────────────────────────
+function formatDur(s) {
+  const m = Math.floor(s / 60), sec = s % 60;
+  return m + ':' + String(sec).padStart(2, '0');
+}
+function formatDate(str) {
+  if (!str) return '—';
+  return new Date(str).toLocaleDateString('ru-RU', {day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'});
+}
+
+function categoryEmoji(cat) {
+  const map = {
+    'дыхание':'🌬','breathing':'🌬',
+    'осознанность':'☯','mindfulness':'☯',
+    'сон':'🌙','sleep':'🌙',
+    'релаксация':'🌿','relaxation':'🌿',
+    'випассана':'◯','метта':'♡','metta':'♡',
+    'звук':'◎','sound':'◎',
+  };
+  if (!cat) return '◯';
+  const key = cat.toLowerCase();
+  return map[key] || '◯';
+}
+
+function randomGradient(id) {
+  const gradients = [
+    'rgba(78,168,130,.2),rgba(60,100,160,.1)',
+    'rgba(100,80,160,.2),rgba(78,168,130,.08)',
+    'rgba(140,100,80,.15),rgba(78,168,130,.12)',
+    'rgba(60,120,160,.2),rgba(100,160,140,.08)',
+    'rgba(160,120,78,.12),rgba(60,100,160,.15)',
+  ];
+ let hash = 0;
+  for (const c of (id||'')) hash = (hash * 31 + c.charCodeAt(0)) & 0xffffffff;
+  return gradients[Math.abs(hash) % gradients.length];
+}
+
+// Enter key support
+document.getElementById('login-pwd').addEventListener('keydown',  e => e.key==='Enter' && doLogin());
+document.getElementById('reg-pwd').addEventListener('keydown',    e => e.key==='Enter' && doRegister());
+
+</script>
+
+<!-- МОБИЛЬНАЯ НАВИГАЦИЯ -->
+<nav class="mobile-nav" id="mobile-nav">
+  <div class="mobile-nav-inner">
+    <div class="mobile-nav-item active" id="mnav-meditations" data-tab="meditations">
+      <span class="mobile-nav-icon">◯</span><span>Медитации</span>
+    </div>
+    <div class="mobile-nav-item" id="mnav-favorites" data-tab="favorites">
+      <span class="mobile-nav-icon">♡</span><span>Избранное</span>
+    </div>
+    <div class="mobile-nav-item" id="mnav-history" data-tab="history">
+      <span class="mobile-nav-icon">◷</span><span>История</span>
+    </div>
+    <div class="mobile-nav-item" id="mnav-subscription" data-tab="subscription">
+      <span class="mobile-nav-icon">✦</span><span>Подписка</span>
+    </div>
+    <div class="mobile-nav-item hidden" id="mnav-admin" data-tab="admin">
+      <span class="mobile-nav-icon">⚙</span><span>Админ</span>
+    </div>
+  </div>
+</nav>
+
+<script>
+(function() {
+  function isMobile() { return window.innerWidth <= 768; }
+
+  function mnavActive(tab) {
+    document.querySelectorAll('.mobile-nav-item').forEach(function(el){ el.classList.remove('active'); });
+    var el = document.getElementById('mnav-' + tab);
+    if (el) el.classList.add('active');
+  }
+
+  document.querySelectorAll('.mobile-nav-item[data-tab]').forEach(function(item) {
+    item.addEventListener('click', function() {
+      var tab = this.getAttribute('data-tab');
+      if (typeof window.switchTab === 'function') window.switchTab(tab);
+      mnavActive(tab);
+    });
+  });
+
+  var _check = setInterval(function() {
+    var appActive = document.getElementById('pg-app').classList.contains('active');
+    if (!appActive) return;
+    clearInterval(_check);
+    if (isMobile()) {
+      document.getElementById('mobile-nav').style.display = 'block';
+      if (window._CUR_USER && window._CUR_USER.role === 'admin') {
+        document.getElementById('mnav-admin').classList.remove('hidden');
+      }
+    }
+  }, 300);
+
+  window.addEventListener('resize', function() {
+    var appActive = document.getElementById('pg-app').classList.contains('active');
+    document.getElementById('mobile-nav').style.display = (appActive && isMobile()) ? 'block' : 'none';
+  });
+
+  var _obs = new MutationObserver(function() {
+    if (!isMobile()) return;
+    var visible = document.getElementById('player-bar').classList.contains('visible');
+    document.getElementById('mobile-nav').style.bottom = visible ? '72px' : '0';
+  });
+  _obs.observe(document.getElementById('player-bar'), { attributes: true, attributeFilter: ['class'] });
+})();
+</script>
+
+</body>
+</html>
